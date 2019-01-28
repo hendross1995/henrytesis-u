@@ -48,24 +48,23 @@ self.addEventListener('activate', e => {
   )
 })
 
-self.addEventListener('fetch', e => {
-  console.log('Evento: SW Recuperando')
+//***Stale-while-revalidate***//
 
-  e.respondWith(
-    //Miramos si la petición coincide con algún elemento del cache
-    caches.match(e.request)
-      .then(res => {
-        console.log('Recuperando cache')
-        if ( res ) {
-          //Si coincide lo retornamos del cache
-          return res
-        }
-        //Sino, lo solicitamos a la red
-        return fetch(e.request)
-          
+self.addEventListener('fetch', function(event) {
+ console.log('FETCH')
+  event.respondWith(
+    caches.open(CACHE_NAME).then(function(cache) {
+      return cache.match(event.request).then(function(response) {
+        var fetchPromise = fetch(event.request).then(function(networkResponse) {
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
+        })
+        console.log(response || "red: "+fetchPromise)
+        return response || fetchPromise;
       })
-    )
-})
+    })
+  );
+});
 
 self.addEventListener('push', e => {
   console.log('Evento: Push')
