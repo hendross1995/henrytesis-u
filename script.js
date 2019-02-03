@@ -97,7 +97,7 @@
     let name = username || 'escueladigital',
       url = `https://api.github.com/users/${name}`
 
-    fetch(url, { method:'POST' })
+    fetch(url, { method:'GET' })
       .then(response => response.json())
       .then(userData => {
         if ( !requestFromBGSync ) {
